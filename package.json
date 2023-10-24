@@ -1,0 +1,18 @@
+{
+  "name": "effect-playground",
+  "version": "1.0.0",
+  "description": "A collection of scripts to explore the Effect ecosystem",
+  "author": "Cosimo Matteini",
+  "scripts": {
+    "custom-logger": "tsx src/custom-logger.ts"
+  },
+  "dependencies": {
+    "effect": "2.0.0-next.50"
+  },
+  "devDependencies": {
+    "@types/node": "18.18.6",
+    "typescript": "5.2.2",
+    "tsx": "3.14.0",
+    "prettier": "3.0.3"
+  }
+}
