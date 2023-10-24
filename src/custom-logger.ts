@@ -50,9 +50,10 @@ const main = async (): Promise<void> => {
         Effect.asUnit,
         Effect.provide(
             F.pipe(
-                Logger.replace(Logger.defaultLogger, customLogger),
-                Layer.provideMerge(Layer.merge(PrefixLive, SuffixLive)),
-                Layer.provideMerge(DepsLive),
+                DepsLive,
+                Layer.use(PrefixLive),
+                Layer.use(SuffixLive),
+                Layer.useMerge(Logger.replace(Logger.defaultLogger, customLogger)),
             ),
         ),
         Logger.withMinimumLogLevel(LogLevel.Debug),
