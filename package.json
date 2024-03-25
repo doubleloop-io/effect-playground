@@ -9,10 +9,11 @@
     "typecheck:w": "tsc --noEmit --watch"
   },
   "dependencies": {
-    "effect": "2.4.3",
-    "@effect/cli": "0.35.1",
-    "@effect/platform": "0.47.1",
-    "@effect/platform-node": "0.45.1"
+    "effect": "2.4.13",
+    "@effect/cli": "0.35.19",
+    "@effect/platform": "0.48.17",
+    "@effect/platform-node": "0.45.19",
+    "@effect/schema": "0.64.13"
   },
   "devDependencies": {
     "@types/node": "18.18.6",
