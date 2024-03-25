@@ -13,19 +13,19 @@ const customLogger = Logger.make(({ logLevel, message }) => {
 })
 
 type Deps = { name: string }
-const Deps = Context.Tag<Deps>()
+const Deps = Context.GenericTag<Deps>("Deps")
 
 const greet = Effect.map(Deps, ({ name }) => `Hello${name}`)
 
 type Suffix = { suffix: string }
-const Suffix = Context.Tag<Suffix>()
+const Suffix = Context.GenericTag<Suffix>("Suffix")
 const SuffixLive = Layer.succeed(Suffix, { suffix: "!" })
 
 type Prefix = { prefix: string }
-const Prefix = Context.Tag<Prefix>()
+const Prefix = Context.GenericTag<Prefix>("Prefix")
 const PrefixLive = Layer.effect(
     Prefix,
-    Effect.map(Effect.config(Config.string("PREFIX")), (x) => Prefix.of({ prefix: x })),
+    Effect.map(Config.string("PREFIX"), (x) => Prefix.of({ prefix: x })),
 )
 
 const DepsLive = Layer.effect(
@@ -36,7 +36,7 @@ const DepsLive = Layer.effect(
             Effect.all({
                 prefix: Effect.map(Prefix, (x) => x.prefix),
                 suffix: Effect.map(Suffix, (x) => x.suffix),
-                name: Effect.config(Config.string("NAME")),
+                name: Config.string("NAME"),
             }),
         ),
         Effect.map(({ name, prefix, suffix }) => Deps.of({ name: `${prefix}${name}${suffix}` })),
@@ -51,9 +51,9 @@ const main = async (): Promise<void> => {
         Effect.provide(
             F.pipe(
                 DepsLive,
-                Layer.use(PrefixLive),
-                Layer.use(SuffixLive),
-                Layer.useMerge(Logger.replace(Logger.defaultLogger, customLogger)),
+                Layer.provide(PrefixLive),
+                Layer.provide(SuffixLive),
+                Layer.provideMerge(Logger.replace(Logger.defaultLogger, customLogger)),
             ),
         ),
         Logger.withMinimumLogLevel(LogLevel.Debug),

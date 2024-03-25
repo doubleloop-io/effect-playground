@@ -10,9 +10,9 @@ type MyObject = {
 
 // repository.ts
 type Repository = { client: any }
-const Repository = Context.Tag<Repository>()
+const Repository = Context.GenericTag<Repository>("@services/Repository")
 
-const RepositoryLive: Layer.Layer<never, never, Repository> = Layer.effect(
+const RepositoryLive: Layer.Layer<Repository> = Layer.effect(
     Repository,
     F.pipe(
         Effect.logInfo("Connecting to repository..."),
@@ -21,18 +21,15 @@ const RepositoryLive: Layer.Layer<never, never, Repository> = Layer.effect(
     ),
 )
 
-const load = (id: string): Effect.Effect<Repository, never, MyObject> =>
+const load = (id: string): Effect.Effect<MyObject, never, Repository> =>
     F.pipe(
         Repository,
         Effect.flatMap(() =>
-            F.pipe(
-                Effect.logInfo(`Loaded object ${id}`),
-                Effect.zipRight(Effect.succeed({ id, version: 1 })),
-            ),
+            F.pipe(Effect.logInfo(`Loaded object ${id}`), Effect.zipRight(Effect.succeed({ id, version: 1 }))),
         ),
     )
 
-const save = (obj: MyObject): Effect.Effect<Repository, never, void> =>
+const save = (obj: MyObject): Effect.Effect<void, never, Repository> =>
     F.pipe(
         Repository,
         Effect.flatMap(() => Effect.logInfo(`Saved object ${obj.id} v${obj.version}`)),
@@ -40,13 +37,13 @@ const save = (obj: MyObject): Effect.Effect<Repository, never, void> =>
 
 // handler.ts
 type HandlerDeps = {
-    load: (id: string) => Effect.Effect<never, never, MyObject>
-    save: (obj: MyObject) => Effect.Effect<never, never, void>
+    load: (id: string) => Effect.Effect<MyObject>
+    save: (obj: MyObject) => Effect.Effect<void>
 }
 
-const HandlerDeps = Context.Tag<HandlerDeps>()
+const HandlerDeps = Context.GenericTag<HandlerDeps>("@services/HandlerDeps")
 
-const handler = (id: string): Effect.Effect<HandlerDeps, never, void> =>
+const handler = (id: string): Effect.Effect<void, never, HandlerDeps> =>
     F.pipe(
         HandlerDeps,
         Effect.flatMap(({ load, save }) =>
@@ -76,7 +73,7 @@ const main = () =>
     F.pipe(
         handler("1234"),
         Effect.tap(() => Effect.logInfo("done")),
-        Effect.provide(Layer.provide(RepositoryLive, HandlerLive)),
+        Effect.provide(Layer.provide(HandlerLive, RepositoryLive)),
         Effect.runPromise,
     )
 
