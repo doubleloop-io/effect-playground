@@ -16,7 +16,7 @@ dependencies:
     version: 0.45.19(@effect/platform@0.48.17)(effect@2.4.13)
   '@effect/schema':
     specifier: 0.64.13
-    version: 0.64.13(effect@2.4.13)(fast-check@3.16.0)
+    version: 0.64.13(effect@2.4.13)(fast-check@3.17.0)
   effect:
     specifier: 2.4.13
     version: 2.4.13
@@ -28,6 +28,9 @@ devDependencies:
   '@types/node':
     specifier: 18.18.6
     version: 18.18.6
+  fast-check:
+    specifier: 3.17.0
+    version: 3.17.0
   prettier:
     specifier: 3.1.0
     version: 3.1.0
@@ -55,7 +58,7 @@ packages:
       '@effect/platform': 0.48.17(@effect/schema@0.64.13)(effect@2.4.13)(ws@8.16.0)
       '@effect/printer': 0.31.22(@effect/typeclass@0.23.13)(effect@2.4.13)
       '@effect/printer-ansi': 0.32.22(@effect/typeclass@0.23.13)(effect@2.4.13)
-      '@effect/schema': 0.64.13(effect@2.4.13)(fast-check@3.16.0)
+      '@effect/schema': 0.64.13(effect@2.4.13)(fast-check@3.17.0)
       effect: 2.4.13
       ini: 4.1.2
       toml: 3.0.0
@@ -96,7 +99,7 @@ packages:
       '@effect/schema': ^0.64.13
       effect: ^2.4.13
     dependencies:
-      '@effect/schema': 0.64.13(effect@2.4.13)(fast-check@3.16.0)
+      '@effect/schema': 0.64.13(effect@2.4.13)(fast-check@3.17.0)
       effect: 2.4.13
       find-my-way-ts: 0.1.1
       isomorphic-ws: 5.0.0(ws@8.16.0)
@@ -127,14 +130,14 @@ packages:
       effect: 2.4.13
     dev: false
 
-  /@effect/schema@0.64.13(effect@2.4.13)(fast-check@3.16.0):
+  /@effect/schema@0.64.13(effect@2.4.13)(fast-check@3.17.0):
     resolution: {integrity: sha512-zn1XmoFalnfppza9YAcyOiIQE9caAxL+OuxrlEFTWceBJK8wYKpJyVokS7zeUGVQf8wIDBCOHfapSpSy55pPcQ==}
     peerDependencies:
       effect: ^2.4.13
       fast-check: ^3.13.2
     dependencies:
       effect: 2.4.13
-      fast-check: 3.16.0
+      fast-check: 3.17.0
     dev: false
 
   /@effect/typeclass@0.23.13(effect@2.4.13):
@@ -1032,12 +1035,11 @@ packages:
       strip-final-newline: 3.0.0
     dev: true
 
-  /fast-check@3.16.0:
-    resolution: {integrity: sha512-k8GtQHi4pJoRQ1gVDFQno+/FVkowo/ehiz/aCj9O/D7HRWb1sSFzNrw+iPVU8QlWtH+jNwbuN+dDVg3QkS56DQ==}
+  /fast-check@3.17.0:
+    resolution: {integrity: sha512-9A7UiBENXxMBb40qY+xOcIcGdxF5CYbXJOU4b+omh773RIFcIQRejHEjjrzIHQFLIQXWgWQu3dl6FrWR9VpYRQ==}
     engines: {node: '>=8.0.0'}
     dependencies:
-      pure-rand: 6.0.4
-    dev: false
+      pure-rand: 6.1.0
 
   /fast-decode-uri-component@1.0.1:
     resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
@@ -1293,9 +1295,8 @@ packages:
       react-is: 18.2.0
     dev: true
 
-  /pure-rand@6.0.4:
-    resolution: {integrity: sha512-LA0Y9kxMYv47GIPJy6MI84fqTd2HmYZI83W/kM/SkKfDlajnZYfmXFTxkbY+xSBPkLJxltMa9hIkmdc29eguMA==}
-    dev: false
+  /pure-rand@6.1.0:
+    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
