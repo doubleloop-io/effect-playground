@@ -6,7 +6,9 @@
   "scripts": {
     "format": "prettier --write src/**/*.ts",
     "typecheck": "tsc --noEmit",
-    "typecheck:w": "tsc --noEmit --watch"
+    "typecheck:w": "tsc --noEmit --watch",
+    "test": "vitest run",
+    "test:w": "vitest watch"
   },
   "dependencies": {
     "effect": "2.4.13",
