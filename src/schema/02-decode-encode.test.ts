@@ -4,11 +4,12 @@ import * as AST from "@effect/schema/AST"
 import * as Effect from "effect/Effect"
 import * as EV from "@effect/vitest"
 import * as E from "effect/Either"
+import { ParseError } from "@effect/schema/ParseResult"
 
 const Person = S.struct({
     name: S.string,
     age: S.number,
-})
+}).pipe(S.identifier("Person"))
 
 test("decode either", () => {
     const decode = S.decodeUnknownEither(Person)
@@ -24,6 +25,11 @@ test("decode either fails", () => {
     const result = decode({ name: 42, age: "John" })
 
     expect(E.isLeft(result)).toBeTruthy()
+    const error = (result as E.Left<ParseError, never>).left
+    expect(error.message).toMatch(/Person/)
+    expect(error.message).toMatch(/name/)
+    expect(error.message).toMatch(/string/)
+    expect(error.message).toMatch(/42/)
 })
 
 EV.effect("excess properties are removed", () =>
