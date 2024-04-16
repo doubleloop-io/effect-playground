@@ -5,9 +5,9 @@ import * as Effect from "effect/Effect"
 import * as EV from "@effect/vitest"
 import * as E from "effect/Either"
 
-const Person = S.struct({
-    name: S.string,
-    age: S.number,
+const Person = S.Struct({
+    name: S.String,
+    age: S.Number,
 })
 
 const isPerson = S.is(Person)

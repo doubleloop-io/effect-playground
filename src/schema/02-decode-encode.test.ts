@@ -6,9 +6,9 @@ import * as EV from "@effect/vitest"
 import * as E from "effect/Either"
 import { ParseError } from "@effect/schema/ParseResult"
 
-const Person = S.struct({
-    name: S.string,
-    age: S.number,
+const Person = S.Struct({
+    name: S.String,
+    age: S.Number,
 }).pipe(S.identifier("Person"))
 
 test("decode either", () => {
@@ -65,7 +65,7 @@ EV.effect("excess properties are preserved", () =>
 describe("encode", () => {
     const Age = S.NumberFromString
 
-    const Person = S.struct({
+    const Person = S.Struct({
         name: S.NonEmpty,
         age: Age,
     })

@@ -2,8 +2,8 @@ import { expect, test, describe } from "vitest"
 import * as S from "@effect/schema/Schema"
 import * as JSONSchema from "@effect/schema/JSONSchema"
 
-const Person = S.struct({
-    name: S.string,
+const Person = S.Struct({
+    name: S.String,
     age: S.NumberFromString,
 })
 

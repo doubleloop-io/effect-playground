@@ -47,7 +47,7 @@ const main = async (): Promise<void> => {
     const result = await F.pipe(
         greet,
         Effect.tap((message) => Effect.logInfo(message)),
-        Effect.asUnit,
+        Effect.asVoid,
         Effect.provide(
             F.pipe(
                 DepsLive,

@@ -2,8 +2,8 @@ import * as Effect from "effect/Effect"
 import * as S from "@effect/schema/Schema"
 
 namespace basic {
-    const Person = S.struct({
-        name: S.string,
+    const Person = S.Struct({
+        name: S.String,
         age: S.NumberFromString,
     })
 
@@ -14,8 +14,8 @@ namespace basic {
 }
 
 namespace opaqueTypes {
-    const _Person = S.struct({
-        name: S.string,
+    const _Person = S.Struct({
+        name: S.String,
         age: S.NumberFromString,
     })
 

@@ -4,14 +4,14 @@ import * as Arbitrary from "@effect/schema/Arbitrary"
 import * as fc from "fast-check"
 import * as F from "effect/Function"
 
-const Person = S.struct({
-    name: S.string,
-    age: S.string.pipe(S.compose(S.NumberFromString), S.int()),
+const Person = S.Struct({
+    name: S.String,
+    age: S.String.pipe(S.compose(S.NumberFromString), S.int()),
 })
 
 const isPerson = S.is(Person)
 
-const PersonArbitraryType = Arbitrary.make(Person)(fc)
+const PersonArbitraryType = Arbitrary.makeLazy(Person)(fc)
 test("generate arbitrary Schema.Type", () => {
     const result = fc.sample(PersonArbitraryType, 1)
 
@@ -19,7 +19,7 @@ test("generate arbitrary Schema.Type", () => {
     expect(isPerson(result[0])).toBeTruthy()
 })
 
-const PersonArbitraryEncoded = Arbitrary.make(S.encodedSchema(Person))(fc)
+const PersonArbitraryEncoded = Arbitrary.makeLazy(S.encodedSchema(Person))(fc)
 test("generate arbitrary Schema.Encoded", () => {
     const result = fc.sample(PersonArbitraryEncoded, 1)
 
@@ -31,7 +31,7 @@ test("generate arbitrary Schema.Encoded", () => {
 // Any filter preceding the customization will be lost, only filters following the customization will be respected.
 const PositiveInt = F.pipe(
     // keep new line
-    S.number,
+    S.Number,
     S.annotations({ arbitrary: () => (fc) => fc.integer() }),
     S.positive(),
 )
@@ -39,7 +39,7 @@ const PositiveInt = F.pipe(
 const isPositiveInt = S.is(PositiveInt)
 
 test("customize arbitrary data", () => {
-    const result = fc.sample(Arbitrary.make(PositiveInt)(fc), 1)
+    const result = fc.sample(Arbitrary.makeLazy(PositiveInt)(fc), 1)
 
     expect(result).toHaveLength(1)
     expect(isPositiveInt(result[0])).toBeTruthy()

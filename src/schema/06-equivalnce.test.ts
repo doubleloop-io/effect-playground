@@ -2,8 +2,8 @@ import { expect, test, describe } from "vitest"
 import * as S from "@effect/schema/Schema"
 import * as Equivalence from "@effect/schema/Equivalence"
 
-const Person = S.struct({
-    name: S.string,
+const Person = S.Struct({
+    name: S.String,
     age: S.NumberFromString,
 })
 
@@ -26,7 +26,7 @@ test("different persons", () => {
     expect(result).toBeFalsy()
 })
 
-const Floor = S.string.annotations({
+const Floor = S.String.annotations({
     equivalence: () => (a, b) => a.at(0) === b.at(0),
 })
 const FloorEquivalence = Equivalence.make(Floor)
