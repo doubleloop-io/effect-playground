@@ -12,8 +12,10 @@ test("generate JSON Schema", () => {
 
     const result = JSON.stringify(personJsonSchema)
 
+    console.log(result)
+
     expect(result).toEqual(
-        '{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","required":["name","age"],"properties":{"name":{"type":"string","description":"a string","title":"string"},"age":{"$ref":"#/$defs/NumberFromString"}},"additionalProperties":false,"$defs":{"NumberFromString":{"type":"number","description":"a number","title":"number"}}}',
+        '{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","required":["name","age"],"properties":{"name":{"type":"string","description":"a string","title":"string"},"age":{"type":"string","description":"a string","title":"string"}},"additionalProperties":false}',
     )
 })
 

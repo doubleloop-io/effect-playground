@@ -1,7 +1,7 @@
-import { expect, test, describe } from "vitest"
+import { expect, test } from "vitest"
 import * as S from "@effect/schema/Schema"
 import * as Arbitrary from "@effect/schema/Arbitrary"
-import * as fc from "fast-check"
+import * as FastCheck from "@effect/schema/FastCheck"
 import * as F from "effect/Function"
 
 const Person = S.Struct({
@@ -11,17 +11,17 @@ const Person = S.Struct({
 
 const isPerson = S.is(Person)
 
-const PersonArbitraryType = Arbitrary.makeLazy(Person)(fc)
+const PersonArbitraryType = Arbitrary.make(Person)
 test("generate arbitrary Schema.Type", () => {
-    const result = fc.sample(PersonArbitraryType, 1)
+    const result = FastCheck.sample(PersonArbitraryType, 1)
 
     expect(result).toHaveLength(1)
     expect(isPerson(result[0])).toBeTruthy()
 })
 
-const PersonArbitraryEncoded = Arbitrary.makeLazy(S.encodedSchema(Person))(fc)
+const PersonArbitraryEncoded = Arbitrary.make(S.encodedSchema(Person))
 test("generate arbitrary Schema.Encoded", () => {
-    const result = fc.sample(PersonArbitraryEncoded, 1)
+    const result = FastCheck.sample(PersonArbitraryEncoded, 1)
 
     expect(result).toHaveLength(1)
     expect(result[0].age).toBeTypeOf("string")
@@ -39,7 +39,7 @@ const PositiveInt = F.pipe(
 const isPositiveInt = S.is(PositiveInt)
 
 test("customize arbitrary data", () => {
-    const result = fc.sample(Arbitrary.makeLazy(PositiveInt)(fc), 1)
+    const result = FastCheck.sample(Arbitrary.make(PositiveInt), 1)
 
     expect(result).toHaveLength(1)
     expect(isPositiveInt(result[0])).toBeTruthy()
