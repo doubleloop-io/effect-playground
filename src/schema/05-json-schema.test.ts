@@ -12,10 +12,8 @@ test("generate JSON Schema", () => {
 
     const result = JSON.stringify(personJsonSchema)
 
-    console.log(result)
-
     expect(result).toEqual(
-        '{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","required":["name","age"],"properties":{"name":{"type":"string","description":"a string","title":"string"},"age":{"type":"string","description":"a string","title":"string"}},"additionalProperties":false}',
+        '{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","required":["name","age"],"properties":{"name":{"type":"string"},"age":{"type":"string"}},"additionalProperties":false}',
     )
 })
 
@@ -25,6 +23,6 @@ test("generate JSON Schema from Schema.Encoded", () => {
     const result = JSON.stringify(personEncodedJsonSchema)
 
     expect(result).toEqual(
-        '{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","required":["name","age"],"properties":{"name":{"type":"string","description":"a string","title":"string"},"age":{"type":"string","description":"a string","title":"string"}},"additionalProperties":false}',
+        '{"$schema":"http://json-schema.org/draft-07/schema#","type":"object","required":["name","age"],"properties":{"name":{"type":"string"},"age":{"type":"string"}},"additionalProperties":false}',
     )
 })

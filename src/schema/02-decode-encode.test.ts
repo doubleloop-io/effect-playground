@@ -9,7 +9,7 @@ import { ParseError } from "@effect/schema/ParseResult"
 const Person = S.Struct({
     name: S.String,
     age: S.Number,
-}).pipe(S.identifier("Person"))
+}).pipe(S.annotations({ identifier: "Person" }))
 
 test("decode either", () => {
     const decode = S.decodeUnknownEither(Person)
@@ -66,7 +66,7 @@ describe("encode", () => {
     const Age = S.NumberFromString
 
     const Person = S.Struct({
-        name: S.NonEmpty,
+        name: S.NonEmptyString,
         age: Age,
     })
 
