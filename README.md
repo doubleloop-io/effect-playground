@@ -12,5 +12,6 @@ pnpm install
 ## Usage
 
 ```bash
-pnpm src/<script.ts>
+pnpm tsx src/<script.ts>
+pnpm test
 ```
