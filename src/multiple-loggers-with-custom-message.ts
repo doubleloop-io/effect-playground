@@ -79,7 +79,7 @@ const ConsoleLogger = Logger.make<CustomMessage, void>(({ logLevel, message }) =
         Match.tag("All", "None", F.constVoid),
         Match.exhaustive,
     )
-}).pipe(obfuscateMessage, unknownToCustomMessage)
+})
 
 const externalServiceLogs: unknown[] = []
 const externalService = {
@@ -109,7 +109,7 @@ const ExternalServiceLogger = Logger.make<CustomMessage, void>((options) => {
         Match.tag("All", "None", F.constVoid),
         Match.exhaustive,
     )
-}).pipe(obfuscateMessage, unknownToCustomMessage)
+})
 
 const program = Effect.gen(function* () {
     yield* Log.debug("Start program")
@@ -124,7 +124,7 @@ const program = Effect.gen(function* () {
     console.dir(externalServiceLogs, { depth: 10 })
 })
 
-const AppLogger = Logger.zip(ConsoleLogger, ExternalServiceLogger)
+const AppLogger = Logger.zip(ConsoleLogger, ExternalServiceLogger).pipe(obfuscateMessage, unknownToCustomMessage)
 
 const main = F.pipe(program, Effect.provide(Logger.replace(Logger.defaultLogger, AppLogger)))
 
