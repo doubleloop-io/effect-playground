@@ -43,13 +43,13 @@ const formatError = (error?: Error) => {
 
 const unknownToCustomMessage = Logger.mapInputOptions<CustomMessage, unknown>((options) => {
     const meta = logMeta(options.context)
-    const { __error, ...params } = meta
+    const { [__error]: error, ...params } = meta
 
     return {
         ...options,
         message: {
             message: `${options.message}`,
-            ...(__error && __error instanceof Error ? { __error } : {}),
+            ...(error && error instanceof Error ? { [__error]: error } : {}),
             ...toJSON(params),
         },
     }
@@ -67,8 +67,8 @@ const obfuscateMessage = Logger.mapInput<CustomMessage, CustomMessage>((message)
 // 3. The custom logger can finally use the CustomMessage in the implementation of Logger.make
 
 const ConsoleLogger = Logger.make<CustomMessage, void>(({ logLevel, message }) => {
-    const { __error, ...rest } = message
-    const output = { ...rest, ...formatError(__error) }
+    const { [__error]: error, ...rest } = message
+    const output = { ...rest, ...formatError(error) }
 
     F.pipe(
         Match.value(logLevel),
@@ -98,14 +98,14 @@ const externalService = {
 }
 
 const ExternalServiceLogger = Logger.make<CustomMessage, void>((options) => {
-    const { __error, message, ...params } = options.message
+    const { [__error]: error, message, ...params } = options.message
 
     F.pipe(
         Match.value(options.logLevel),
         Match.tag("Debug", "Trace", () => externalService.debug(message, params)),
         Match.tag("Info", () => externalService.info(message, params)),
         Match.tag("Warning", () => externalService.warn(message, params)),
-        Match.tag("Error", "Fatal", () => externalService.error(message, __error, params)),
+        Match.tag("Error", "Fatal", () => externalService.error(message, error, params)),
         Match.tag("All", "None", F.constVoid),
         Match.exhaustive,
     )
