@@ -55,6 +55,17 @@ const unknownToCustomMessage = Logger.mapInputOptions((options) => {
     }
 })
 
+const obfuscateMessage = Logger.mapInput<CustomMessage, CustomMessage>((message) => ({
+    ...message,
+    ...(message["firstName"] ? { firstName: "****" } : {}),
+    ...(message["lastName"] ? { lastName: "****" } : {}),
+}))
+
+// When mapping logger input you should read the pipeline bottom up
+// 1. mapInputOptions unknownToCustomMessage: unknown message is processed into CustomMessage
+// 2. mapInput obfuscateMessage: CustomMessage -> CustomMessage, no type changes, only at value level
+// 3. The custom logger can finally use the CustomMessage in the implementation of Logger.make
+
 const ConsoleLogger = Logger.make<CustomMessage, void>(({ logLevel, message }) => {
     const { __error, ...rest } = message
     const output = { ...rest, ...formatError(__error) }
@@ -68,7 +79,7 @@ const ConsoleLogger = Logger.make<CustomMessage, void>(({ logLevel, message }) =
         Match.tag("All", "None", F.constVoid),
         Match.exhaustive,
     )
-}).pipe(unknownToCustomMessage)
+}).pipe(obfuscateMessage, unknownToCustomMessage)
 
 const externalServiceLogs: unknown[] = []
 const externalService = {
@@ -98,13 +109,13 @@ const ExternalServiceLogger = Logger.make<CustomMessage, void>((options) => {
         Match.tag("All", "None", F.constVoid),
         Match.exhaustive,
     )
-}).pipe(unknownToCustomMessage)
+}).pipe(obfuscateMessage, unknownToCustomMessage)
 
 const program = Effect.gen(function* () {
     yield* Log.debug("Start program")
-    yield* Log.info("Processing tasks", { id: "abc2025", code: 12345 })
+    yield* Log.info("Processing tasks", { id: "abc2025", code: 12345, firstName: "John", lastName: "Doe" })
 
-    yield* Log.warning("Some warn message with params", { a: "a", b: true })
+    yield* Log.warning("Some warn message with params", { a: "a", b: true, firstName: "Jack" })
     yield* Log.error("Some error message", { code: 6788, type: "TaskFailed" }, new Error("Any error message!!"))
 
     yield* Log.info("Program finished!")
