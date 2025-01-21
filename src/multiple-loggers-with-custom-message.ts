@@ -41,7 +41,7 @@ const formatError = (error?: Error) => {
     }
 }
 
-const unknownToCustomMessage = Logger.mapInputOptions((options) => {
+const unknownToCustomMessage = Logger.mapInputOptions<CustomMessage, unknown>((options) => {
     const meta = logMeta(options.context)
     const { __error, ...params } = meta
 
