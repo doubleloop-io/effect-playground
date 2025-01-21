@@ -3,49 +3,68 @@ import * as Match from "effect/Match"
 import * as F from "effect/Function"
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime"
 import * as Effect from "effect/Effect"
-import * as HashMap from "effect/HashMap"
-import * as O from "effect/Option"
+import * as FiberRef from "effect/FiberRef"
+import * as FiberRefs from "effect/FiberRefs"
 
-type CustomMessage = { message: string; __error?: Error } & Record<string, unknown>
+const __error = "__error" as const
 
-const formatAnnotations = (annotations: HashMap.HashMap<string, unknown>) => {
-    const ret: Record<string, string> = {}
-    for (const [key, value] of annotations) ret[key] = serializeUnknown(value)
-    return ret
+type LogMeta = Record<string, unknown>
+const logMetaRef = FiberRef.unsafeMake<LogMeta>({})
+const logMeta = (context: FiberRefs.FiberRefs) => FiberRefs.getOrDefault(context, logMetaRef)
+
+const Log = {
+    debug: (message: string, data: LogMeta = {}) => F.pipe(Effect.logDebug(message), Effect.locally(logMetaRef, data)),
+    info: (message: string, data: LogMeta = {}) => F.pipe(Effect.logInfo(message), Effect.locally(logMetaRef, data)),
+    warning: (message: string, data: LogMeta = {}) =>
+        F.pipe(Effect.logWarning(message), Effect.locally(logMetaRef, data)),
+    error: (message: string, data: LogMeta = {}, error?: Error) =>
+        F.pipe(Effect.logError(message), Effect.locally(logMetaRef, { ...data, [__error]: error })),
 }
-const serializeUnknown = (u: unknown): string => {
+
+type CustomMessage = { message: string; [__error]?: Error } & Record<string, unknown>
+
+const toJSON = (meta: Record<string, unknown>) => {
     try {
-        return typeof u === "object" ? JSON.stringify(u) : String(u)
-    } catch (_) {
-        return String(u)
+        return JSON.parse(JSON.stringify(meta))
+    } catch {
+        return {
+            logMeta: "ERROR: cannot serialize log metadata",
+        }
+    }
+}
+const formatError = (error?: Error) => {
+    if (!error) return {}
+    return {
+        errorName: error.name,
+        errorMessage: error.message,
+        errorStackTrace: error.stack,
     }
 }
 
 const unknownToCustomMessage = Logger.mapInputOptions((options) => {
-    const __error = F.pipe(
-        HashMap.get(options.annotations, "__error"),
-        O.flatMap((x) => (x instanceof Error ? O.some(x) : O.none())),
-        O.getOrUndefined,
-    )
-    const params = HashMap.remove(options.annotations, "__error")
+    const meta = logMeta(options.context)
+    const { __error, ...params } = meta
 
     return {
         ...options,
         message: {
             message: `${options.message}`,
-            ...(__error ? { __error } : {}),
-            ...formatAnnotations(params),
+            ...(__error && __error instanceof Error ? { __error } : {}),
+            ...toJSON(params),
         },
     }
 })
 
 const ConsoleLogger = Logger.make<CustomMessage, void>(({ logLevel, message }) => {
+    const { __error, ...rest } = message
+    const output = { ...rest, ...formatError(__error) }
+
     F.pipe(
         Match.value(logLevel),
-        Match.tag("Debug", "Trace", () => console.debug(message)),
-        Match.tag("Info", () => console.debug(message)),
-        Match.tag("Warning", () => console.debug(message)),
-        Match.tag("Error", "Fatal", () => console.error(message)),
+        Match.tag("Debug", "Trace", () => console.debug(output)),
+        Match.tag("Info", () => console.debug(output)),
+        Match.tag("Warning", () => console.debug(output)),
+        Match.tag("Error", "Fatal", () => console.error(output)),
         Match.tag("All", "None", F.constVoid),
         Match.exhaustive,
     )
@@ -82,15 +101,13 @@ const ExternalServiceLogger = Logger.make<CustomMessage, void>((options) => {
 }).pipe(unknownToCustomMessage)
 
 const program = Effect.gen(function* () {
-    yield* Effect.logDebug("Start program")
-    yield* Effect.logInfo("Processing tasks").pipe(Effect.annotateLogs({ id: "abc2025", code: 12345 }))
+    yield* Log.debug("Start program")
+    yield* Log.info("Processing tasks", { id: "abc2025", code: 12345 })
 
-    yield* Effect.logWarning("Some warn message with params").pipe(Effect.annotateLogs({ a: "a", b: true }))
-    yield* Effect.logError("Some error message").pipe(
-        Effect.annotateLogs({ __error: new Error("Any error message!!"), code: 6788, type: "TaskFailed" }),
-    )
+    yield* Log.warning("Some warn message with params", { a: "a", b: true })
+    yield* Log.error("Some error message", { code: 6788, type: "TaskFailed" }, new Error("Any error message!!"))
 
-    yield* Effect.logInfo("Program finished!")
+    yield* Log.info("Program finished!")
 
     console.log("\nExternal service logs dump:")
     console.dir(externalServiceLogs, { depth: 10 })
