@@ -7,14 +7,14 @@ import * as ConfigProviderPathPatch from "effect/ConfigProviderPathPatch"
 import * as Cache from "effect/Cache"
 import { expect, test } from "vitest"
 
-const CachedFlatProvider = (...values: string[]) => {
-    let index = 0
+const CachedFlatProvider = (values: { [key in string]: string }) => {
+    let invocations = 0
 
     return Effect.gen(function* () {
         const cache = yield* Cache.make({
             lookup: (key: string) =>
-                key === "TEST"
-                    ? Effect.succeed(values[index++])
+                key in values
+                    ? Effect.succeed(`${values[key]}@${++invocations}`)
                     : Effect.fail(ConfigError.Unsupported([key], "Unknown config")),
             timeToLive: "5 minutes",
             capacity: 100,
@@ -44,10 +44,7 @@ test("resolve config is cached", async () => {
         return [test, test2] as const
     })
 
-    const result = await program.pipe(
-        Effect.provide(CachedFlatProvider("test value 1", "test value 2")),
-        Effect.runPromise,
-    )
+    const result = await program.pipe(Effect.provide(CachedFlatProvider({ TEST: "test value" })), Effect.runPromise)
 
-    expect(result).toEqual(["test value 1", "test value 1"])
+    expect(result).toEqual(["test value@1", "test value@1"])
 })

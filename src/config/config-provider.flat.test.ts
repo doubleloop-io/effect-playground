@@ -5,17 +5,20 @@ import * as ConfigProvider from "effect/ConfigProvider"
 import * as ConfigProviderPathPatch from "effect/ConfigProviderPathPatch"
 import { expect, test } from "vitest"
 
-const CustomFlatProvider = (...values: string[]) => {
-    let index = 0
+const FlatProvider = (values: { [key in string]: string }) => {
+    let invocations = 0
 
+    const get = (key: string) =>
+        key in values
+            ? Effect.succeed(`${values[key]}@${++invocations}`)
+            : Effect.fail(ConfigError.Unsupported([key], "Unknown config"))
     return ConfigProvider.fromFlat(
         ConfigProvider.makeFlat({
             load: (path, config, split) =>
-                Effect.gen(function* () {
-                    if (!(path.length === 1 && path[0] === "TEST"))
-                        return yield* Effect.fail(ConfigError.Unsupported([...path], "Unknown config"))
-                    return [yield* config.parse(values[index++])]
-                }),
+                get(path[0]).pipe(
+                    Effect.flatMap(config.parse),
+                    Effect.map((x) => [x]),
+                ),
             enumerateChildren: (path) => Effect.fail(ConfigError.Unsupported([...path], "TBI")),
             patch: ConfigProviderPathPatch.empty,
         }),
@@ -24,9 +27,12 @@ const CustomFlatProvider = (...values: string[]) => {
 
 test("resolve config", async () => {
     const program = Config.string("TEST")
-    const result = await program.pipe(Effect.withConfigProvider(CustomFlatProvider("test value")), Effect.runPromise)
+    const result = await program.pipe(
+        Effect.withConfigProvider(FlatProvider({ TEST: "test value" })),
+        Effect.runPromise,
+    )
 
-    expect(result).toEqual("test value")
+    expect(result).toEqual("test value@1")
 })
 
 test("resolve config does not cache", async () => {
@@ -38,9 +44,9 @@ test("resolve config does not cache", async () => {
     })
 
     const result = await program.pipe(
-        Effect.withConfigProvider(CustomFlatProvider("test value 1", "test value 2")),
+        Effect.withConfigProvider(FlatProvider({ TEST: "test value" })),
         Effect.runPromise,
     )
 
-    expect(result).toEqual(["test value 1", "test value 2"])
+    expect(result).toEqual(["test value@1", "test value@2"])
 })
