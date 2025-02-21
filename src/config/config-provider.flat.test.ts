@@ -8,6 +8,7 @@ import * as HashSet from "effect/HashSet"
 import * as Array from "effect/Array"
 import * as F from "effect/Function"
 import { describe, expect, test } from "vitest"
+import * as Exit from "effect/Exit"
 
 const FlatProvider = (values: { [key in string]: string }) => {
     let invocations = 0
@@ -24,7 +25,10 @@ const FlatProvider = (values: { [key in string]: string }) => {
             load: (path, config, split) =>
                 get(path[0]).pipe(
                     Effect.flatMap(config.parse),
-                    Effect.map((x) => [x]),
+                    Effect.mapBoth({
+                        onSuccess: (x) => [x],
+                        onFailure: ConfigError.prefixed([...path]),
+                    }),
                 ),
             enumerateChildren: (path) =>
                 F.pipe(
@@ -89,4 +93,15 @@ describe("enumerateChildren", () => {
             HashMap.make(["FOO", expect.stringMatching("FOO VALUE")], ["BAR", expect.stringMatching("BAR VALUE")]),
         )
     })
+})
+
+test("path in error", async () => {
+    const program = Config.number("TEST")
+    const result = await program.pipe(
+        Effect.withConfigProvider(FlatProvider({ TEST: "not a number" })),
+        Effect.runPromiseExit,
+    )
+
+    const cause = F.pipe(result, Exit.getOrElse(F.identity))
+    expect((cause as any).error.path).toEqual(["TEST"])
 })
